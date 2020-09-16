@@ -43,10 +43,8 @@ class UserProfileDialog extends ComponentDialog
         this.addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
             this.appStep.bind(this),
             this.infoStep.bind(this),
-            this.appModelApiStep.bind(this),
-            this.dbVisibilityApiStep.bind(this),
-            this.healthRuleApiStep.bind(this),
-            this.actionApiStep.bind(this)
+            this.appModelApiStep.bind(this)
+            
             
 
         ]));
@@ -81,7 +79,7 @@ class UserProfileDialog extends ComponentDialog
     
     async infoStep(step)
     {
-        step.values.app=step.result;
+        app=step.result;
         
         return await step.prompt(CHOICE_PROMPT, {
             prompt: 'Please enter your info.',
@@ -90,18 +88,18 @@ class UserProfileDialog extends ComponentDialog
     }   
     async appModelApiStep(step)
     {
-        step.values.info=step.result.value;
+        info=step.result.value;
        
-    await axios.get(`https://marilyn202005261925275.saas.appdynamics.com/controller/rest/applications/${step.values.app}/${step.values.info}?output=json`,
+    await axios.get(`https://charlie202008310330195.saas.appdynamics.com/controller/rest/applications/${app}/${info}?output=json`,
     {
       auth:
       {
-        username: 'marilyn202005261925275@marilyn202005261925275',
-        password: 'kty7katfcyhu'
+        username: 'charlie202008310330195@charlie202008310330195',
+        password: '5myrxxro74q7'
       }
     }).then((result) =>{   
      var outerData=result.data;
-     if(step.values.info=='tiers')
+     if(info=='tiers')
      {
          
             step.context.sendActivity(outerData[0].agentType);
@@ -111,7 +109,7 @@ class UserProfileDialog extends ComponentDialog
               step.context.sendActivity(outerData[0].numberOfNodes.toString());
               step.context.sendActivity(outerData[0].type);
      }
-     else if(step.values.info=='business-transactions')
+     else if(info=='business-transactions')
      {
          for(var i=0;i<outerData.length;i++)
          {
@@ -125,7 +123,7 @@ class UserProfileDialog extends ComponentDialog
              step.context.sendActivity(outerData[i].entryPointTypeString);
          }
        } 
-       else if(step.values.info=='backends')
+       else if(info=='backends')
        {
          for(var i=0;i<outerData.length;i++)
          {
@@ -142,7 +140,7 @@ class UserProfileDialog extends ComponentDialog
            }
        }
      }
-       else if(step.values.info=='nodes')
+       else if(info=='nodes')
        {
         step.context.sendActivity(outerData[0].appAgentVersion);
         step.context.sendActivity(outerData[0].machineAgentVersion);
@@ -166,99 +164,10 @@ class UserProfileDialog extends ComponentDialog
        }
            
    });
-   return await step.prompt(CHOICE_PROMPT, {
-    prompt: 'Do u want db visibility api info?',
-    choices: ChoiceFactory.toChoices(['yes', 'no'])
-});
+   return await step.endDialog();
    
     }
-    async dbVisibilityApiStep(step)
-    {
-      if(step.result.value=='yes')
-      {
-      await axios.get(`https://marilyn202005261925275.saas.appdynamics.com/controller/rest/databases/servers?output=json`,
-      {
-        auth:
-        {
-          username: 'marilyn202005261925275@marilyn202005261925275',
-          password: 'kty7katfcyhu'
-        }
-      }).then((result) =>{   
-       var outerData=result.data;
-          step.context.sendActivity(outerData[0].id.toString());
-      });
-      }
-      return await step.prompt(CHOICE_PROMPT, {
-        prompt: 'Do u want health rule api info?',
-        choices: ChoiceFactory.toChoices(['yes', 'no'])
-    });
-  }
-  async healthRuleApiStep(step)
-  {
-    var id='';
-    if(step.values.app=='konakart')
-    {
-      id='3833';
-    }
-    else if(step.values.app=='Car_Sample_App_Roopam')
-    {
-      id='3866';
-    }
-    else if(step.values.app=='Konakart_Reshab')
-    {
-      id='3997';
-    }
-    else if(step.values.app=='Cars_Sample_App_Reshab')
-    {
-      id='3999';
-    }
-    else{}
-    if(step.result.value=='yes')
-      {
-      await axios.get(`https://marilyn202005261925275.saas.appdynamics.com/controller/alerting/rest/v1/applications/${id}/health-rules?output=json`,
-      {
-        auth:
-        {
-          username: 'marilyn202005261925275@marilyn202005261925275',
-          password: 'kty7katfcyhu'
-        }
-      }).then((result) =>{   
-       var outerData=result.data;
-        for(var i=0;i<outerData.length;i++)
-        {
-          step.context.sendActivity(outerData[i].id.toString());
-          step.context.sendActivity(outerData[i].name);
-          step.context.sendActivity(outerData[i].enabled.toString());
-          step.context.sendActivity(outerData[i].affectedEntityType);
-        }
-      });
-    }
-    return await step.prompt(CHOICE_PROMPT, {
-      prompt: 'Do u want action api info?',
-      choices: ChoiceFactory.toChoices(['yes', 'no'])
-  });
-  }
-  async actionApiStep(step)
-  {
-    step.context.sendActivity('It is of konakart application only.');
-    if(step.result.value=='yes')
-      {
-      await axios.get(`https://marilyn202005261925275.saas.appdynamics.com/controller/alerting/rest/v1/applications/3833/actions?output=json`,
-      {
-        auth:
-        {
-          username: 'marilyn202005261925275@marilyn202005261925275',
-          password: 'kty7katfcyhu'
-        }
-      }).then((result) =>{   
-       var outerData=result.data;
-        step.context.sendActivity(outerData[0].id.toString());
-        step.context.sendActivity(outerData[0].name);
-        step.context.sendActivity(outerData[0].actionType);
-      });
-    }
-    return await step.endDialog();
-  }
+   
 }    
 
 
