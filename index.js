@@ -16,6 +16,7 @@ const { UserProfileDialog } = require('./dialogs/userProfileDialog');
 const ENV_FILE = path.join(__dirname, '.env');
 require('dotenv').config({ path: ENV_FILE });
 //-----------------------------------------------------------------------------------------------
+/*
 var botConnectorOptions = { 
     appId: '9eb35d10-XXXXXXXXXXXXX-e666af02c0be', 
     appPassword:'PDq1x6XXXXXXXXXXXXq4vpyv'
@@ -31,6 +32,7 @@ bot.dialog('/', function (session) {
     //this will send you said+what ever user says.
     session.send("You said " + session.message.text);
 });
+*/ 
 //----------------------------------------------------------------------------------------------------------------------
 
 // Create the adapter. See https://aka.ms/about-bot-adapter to learn more about using information from
@@ -76,19 +78,17 @@ const dialog = new UserProfileDialog(userState);
 const bot = new DialogBot(conversationState, userState, dialog);
 
 // Create HTTP server.
-// Setup Restify Server
-var server = restify.createServer();
+const server = restify.createServer();
+server.listen(process.env.port || process.env.PORT || 3978, function() {
+    console.log(`\n${ server.name } listening to ${ server.url }.`);
+    console.log('\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator');
+    console.log('\nTo talk to your bot, open the emulator select "Open Bot"');
+});
 
-// Handle Bot Framework messages
-/*here we are giving path as "/api/messages" because during the process of regi9stering bot we have given end point URL as "azure qwebapp url/api/messages" if you want to give some other url give the same url whatever you give in the endpoint excluding azure webapp url */
-server.post('/api/messages', connector.listen());
-
-// Serve a static web page
-server.get(/.*/, restify.serveStatic({
-        'directory': '.',
-        'default': 'index.html'
-}));
-
-server.listen(process.env.port || 3978, function () {
-    console.log('%s listening to %s', server.name, server.url); 
+// Listen for incoming requests.
+server.post('/api/messages', (req, res) => {
+    adapter.processActivity(req, res, async (context) => {
+        // Route the message to the bot's main handler.
+            await bot.run(context); 
+    });
 });
