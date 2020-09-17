@@ -18,6 +18,8 @@ const {
 const { Channels } = require('botbuilder-core');
 const { UserProfile } = require('../userProfile');
 
+var app,info;
+
 const ATTACHMENT_PROMPT = 'ATTACHMENT_PROMPT';
 const CHOICE_PROMPT = 'CHOICE_PROMPT';
 const CONFIRM_PROMPT = 'CONFIRM_PROMPT';
